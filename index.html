@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebGIS Gita</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  scroll-behavior: smooth;
+}
+
+/* ===== COVER ===== */
+.cover {
+  height: 100vh;
+  background: 
+    linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+    url('cover.jpg') center/cover no-repeat;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  text-align: center;
+  padding: 20px;
+}
+
+.cover h1 { font-size: 48px; margin-bottom: 10px; }
+.cover h3 { font-weight: normal; margin-bottom: 10px; opacity: 0.9; }
+.cover p { font-size: 18px; margin-bottom: 25px; max-width: 600px; }
+
+/* tombol */
+.btn {
+  padding: 12px 22px;
+  background: #0077ff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 8px;
+  transition: 0.3s;
+}
+.btn:hover {
+  background: #0055cc;
+  transform: scale(1.05);
+}
+
+/* ===== SECTION ===== */
+.section {
+  padding: 70px 20px;
+  text-align: center;
+  background: #f9f9f9;
+}
+
+.section h2 { margin-bottom: 20px; }
+
+/* CARD */
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  width: 260px;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  transition: 0.3s;
+}
+.card:hover { transform: translateY(-5px); }
+
+.card img {
+  width: 60px;
+  margin-bottom: 10px;
+}
+
+/* ===== POPUP ===== */
+.popup {
+  display: none;
+  position: fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background: rgba(0,0,0,0.7);
+  justify-content:center;
+  align-items:center;
+  z-index: 999;
+}
+
+.popup-content {
+  background:white;
+  padding:20px;
+  width:90%;
+  height:85%;
+  border-radius: 10px;
+  position:relative;
+}
+
+.popup iframe {
+  width:100%;
+  height:100%;
+  border:none;
+  pointer-events: auto; /* 🔥 biar bisa drag */
+}
+
+.close {
+  position:absolute;
+  top:10px;
+  right:15px;
+  cursor:pointer;
+  font-size:22px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- ===== COVER ===== -->
+<section class="cover">
+  <h3>WEBGIS INTERAKTIF</h3>
+  <h1>WebGIS Persebaran Bangunan dan Fasilitas</h1>
+  <p>
+    Visualisasi spasial untuk menampilkan persebaran bangunan dan fasilitas umum.
+  </p>
+
+  <button class="btn" onclick="scrollToContent()">Lihat Penjelasan</button>
+  <br><br>
+  <button class="btn" onclick="openPopup()">Lihat Peta</button>
+</section>
+
+<!-- ===== PENJELASAN ===== -->
+<section class="section" id="content">
+  <h2>Deskripsi Peta</h2>
+
+  <div class="card-container">
+    <div class="card">
+      <img src="univ.jpg">
+      <h3>Universitas</h3>
+      <p>Lokasi kampus sekitar area penelitian.</p>
+    </div>
+
+    <div class="card">
+      <img src="rs.jpg">
+      <h3>Rumah Sakit</h3>
+      <p>Fasilitas kesehatan sekitar wilayah.</p>
+    </div>
+
+    <div class="card">
+      <img src="masjid.jpg">
+      <h3>Masjid</h3>
+      <p>Tempat ibadah terpetakan.</p>
+    </div>
+
+    <div class="card">
+      <img src="residence.png">
+      <h3>Residence</h3>
+      <p>Lokasi penginapan.</p>
+    </div>
+
+    <div class="card">
+      <img src="bangunan.png">
+      <h3>Bangunan Umum</h3>
+      <p>Bangunan umum di sekitar lokasi.</p>
+    </div>
+  </div>
+
+  <br><br>
+
+  <h2>Lokasi</h2>
+  <p style="max-width:600px;margin:auto;">
+    Jl. Kesehatan, Sleman, DI Yogyakarta
+  </p>
+
+  <h2>Metode</h2>
+  <p style="max-width:600px;margin:auto;">
+    Data digitasi → GeoJSON → divisualisasikan menjadi WebGIS interaktif.
+  </p>
+
+  <br>
+  <button class="btn" onclick="openPopup()">Buka Peta</button>
+</section>
+
+<!-- ===== POPUP ===== -->
+<div class="popup" id="popup">
+  <div class="popup-content">
+    <span class="close" onclick="closePopup()">✖</span>
+
+    <!-- 🔥 iframe TANPA src awal -->
+    <iframe id="mapFrame"></iframe>
+
+  </div>
+</div>
+
+<script>
+function scrollToContent() {
+  document.getElementById("content").scrollIntoView({behavior: "smooth"});
+}
+
+// 🔥 load map SAAT popup dibuka
+function openPopup() {
+  const popup = document.getElementById("popup");
+  const iframe = document.getElementById("mapFrame");
+
+  popup.style.display = "flex";
+
+  // load qgis2web di sini
+  iframe.src = "qgis2web/qgis_map.html";
+}
+
+// 🔥 reset saat ditutup
+function closePopup() {
+  const popup = document.getElementById("popup");
+  const iframe = document.getElementById("mapFrame");
+
+  popup.style.display = "none";
+  iframe.src = "";
+}
+</script>
+
+</body>
+
+<footer style="text-align:center;padding:20px;background:#eee;">
+  © 2026 - Dewa Ayu Gita Karunia Putri Aryani
+</footer>
+</html>
